@@ -1,6 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+
+// Force dynamic rendering for subdomain detection
+export const dynamic = 'force-dynamic'
+export const runtime = 'edge'
 import Hero from '@/components/Hero'
 import Problem from '@/components/Problem'
 import Solution from '@/components/Solution'
@@ -52,8 +56,18 @@ export default function Home() {
           
           if (response.ok) {
             const data = await response.json()
-            setQuestionnaire(data.questionnaire)
+            if (data.questionnaire) {
+              setQuestionnaire(data.questionnaire)
+            } else {
+              console.warn('No questionnaire in response:', data)
+            }
+          } else {
+            const errorData = await response.json().catch(() => ({}))
+            console.error('Failed to fetch questionnaire:', response.status, errorData)
           }
+        } else {
+          // Not a subdomain, show landing page
+          setLoading(false)
         }
       } catch (err) {
         console.error('Error checking subdomain:', err)
