@@ -1,10 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-
-// Force dynamic rendering for subdomain detection
-export const dynamic = 'force-dynamic'
-export const runtime = 'edge'
 import Hero from '@/components/Hero'
 import Problem from '@/components/Problem'
 import Solution from '@/components/Solution'
