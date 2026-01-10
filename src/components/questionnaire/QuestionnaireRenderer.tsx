@@ -362,7 +362,14 @@ export default function QuestionnaireRenderer({ questionnaire }: { questionnaire
                 return navigationHistory.length > 1 ? handleBack : undefined
               })()}
               isLast={currentScreen.index === fields.length - 1}
-              onSubmit={handleSubmit}
+              onSubmit={() => {
+                // Show confirmation screen instead of submitting directly
+                setCurrentScreen({
+                  type: 'confirmation',
+                  data: null,
+                  index: 0,
+                })
+              }}
               isSubmitting={isSubmitting}
             />
           )}
