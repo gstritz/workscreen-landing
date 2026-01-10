@@ -4,10 +4,6 @@ import { useEffect, useState } from 'react'
 import QuestionnaireRenderer from '@/components/questionnaire/QuestionnaireRenderer'
 import { QuestionnaireConfig, Branding } from '@/types/questionnaire'
 
-// Force dynamic rendering - this page depends on subdomain which is only available at runtime
-export const dynamic = 'force-dynamic'
-export const dynamicParams = true
-
 interface Questionnaire {
   id: string
   subdomain: string
