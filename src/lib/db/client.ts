@@ -8,12 +8,6 @@ export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-    // Optimize for serverless environments
-    datasources: {
-      db: {
-        url: process.env.DATABASE_URL,
-      },
-    },
   })
 
 // In production (serverless), we should reuse the client

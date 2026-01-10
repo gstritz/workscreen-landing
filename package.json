@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
+    "postinstall": "prisma generate",
     "seed": "curl -X GET https://workchat.law/api/seed || echo 'Seed endpoint available at /api/seed'"
   },
   "dependencies": {
