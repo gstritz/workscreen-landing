@@ -102,9 +102,8 @@ export function getFieldValidationError(
       const titleLower = (fieldTitle || '').toLowerCase()
       const refLower = (fieldRef || '').toLowerCase()
       
-      // Check for phone number field
+      // Check for phone number field (detected by ref or title)
       const isPhone = 
-        fieldType === 'phone_number' ||
         refLower.includes('phone') ||
         titleLower.includes("phone number") ||
         titleLower.includes("phone") ||

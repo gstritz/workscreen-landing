@@ -92,6 +92,7 @@ export interface ThankYouScreen {
     button_text?: string
     button_mode?: 'reload' | 'redirect' | 'default_redirect'
     share_icons?: boolean
+    description?: string
     attachment?: {
       type: string
       href: string
