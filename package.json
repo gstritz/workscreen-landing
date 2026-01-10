@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "seed": "curl -X GET https://workchat.law/api/seed || echo 'Seed endpoint available at /api/seed'"
   },
   "dependencies": {
     "@prisma/client": "^6.19.1",
