@@ -5,6 +5,7 @@ import { QuestionnaireConfig, Field, WelcomeScreen, ThankYouScreen, ResponseAnsw
 import WelcomeScreenComponent from './WelcomeScreen'
 import ThankYouScreenComponent from './ThankYouScreen'
 import QuestionRenderer from './QuestionRenderer'
+import ConfirmationScreen from './ConfirmationScreen'
 import { getNextQuestion } from '@/lib/questionnaire/logic'
 import { replaceFieldReferences } from '@/lib/questionnaire/parser'
 import BrandedHeader from './BrandedHeader'
@@ -27,7 +28,7 @@ interface Questionnaire {
   isActive: boolean
 }
 
-type ScreenType = 'welcome' | 'question' | 'thankyou'
+type ScreenType = 'welcome' | 'question' | 'confirmation' | 'thankyou'
 
 interface CurrentScreen {
   type: ScreenType
@@ -362,6 +363,31 @@ export default function QuestionnaireRenderer({ questionnaire }: { questionnaire
               })()}
               isLast={currentScreen.index === fields.length - 1}
               onSubmit={handleSubmit}
+              isSubmitting={isSubmitting}
+            />
+          )}
+
+          {currentScreen.type === 'confirmation' && (
+            <ConfirmationScreen
+              answers={answers}
+              fields={fields}
+              config={config}
+              onConfirm={handleSubmit}
+              onBack={() => {
+                // Go back to last question
+                if (navigationHistory.length > 0) {
+                  const lastItem = navigationHistory[navigationHistory.length - 1]
+                  if (lastItem && 'type' in lastItem) {
+                    const lastField = lastItem as Field
+                    const lastIndex = fields.findIndex((f) => f.id === lastField.id)
+                    setCurrentScreen({
+                      type: 'question',
+                      data: lastField,
+                      index: lastIndex >= 0 ? lastIndex : fields.length - 1,
+                    })
+                  }
+                }
+              }}
               isSubmitting={isSubmitting}
             />
           )}

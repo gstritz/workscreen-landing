@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Field, ResponseAnswers } from '@/types/questionnaire'
 import { replaceFieldReferences } from '@/lib/questionnaire/parser'
 import { getFieldValidationError } from '@/lib/questionnaire/validation'
@@ -56,7 +56,7 @@ export default function QuestionRenderer({
     onAnswer(field.ref, value)
   }
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     // Statement fields don't need answers - they're just info screens
     if (field.type === 'statement') {
       if (isLast) {
@@ -93,7 +93,46 @@ export default function QuestionRenderer({
     } else {
       onNext()
     }
-  }
+  }, [field, localValue, isLast, onSubmit, onNext])
+
+  // Add Enter/Return keybinding
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Only trigger on Enter/Return, and not when typing in textarea
+      if (e.key === 'Enter' && !e.shiftKey) {
+        const target = e.target as HTMLElement
+        // Don't trigger if user is in a textarea (unless it's a single-line input)
+        if (target.tagName === 'TEXTAREA') {
+          return
+        }
+        
+        // Don't trigger if user is in a select dropdown
+        if (target.tagName === 'SELECT') {
+          return
+        }
+
+        // Check if button is enabled
+        const isRequired = field.validations?.required !== false
+        const hasValue = localValue !== undefined && 
+                         localValue !== null && 
+                         localValue !== '' &&
+                         !(Array.isArray(localValue) && localValue.length === 0)
+        const validationError = hasValue 
+          ? getFieldValidationError(field.type, localValue, field.ref, field.title)
+          : null
+        
+        const isDisabled = isSubmitting || (isRequired && !hasValue) || !!validationError
+        
+        if (!isDisabled && field.type !== 'statement') {
+          e.preventDefault()
+          handleNext()
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [localValue, field, isSubmitting, handleNext])
 
   // Get validation error for current field (only show if field has a value)
   const validationError = localValue !== undefined && 
