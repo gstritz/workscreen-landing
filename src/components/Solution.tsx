@@ -16,10 +16,10 @@ export default function Solution() {
         <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 shadow-premium border border-gray-100">
           <div className="prose prose-lg md:prose-xl max-w-none text-gray-700 space-y-6 leading-relaxed">
             <p className="text-xl text-gray-800 font-medium">
-              WorkScreen is intake filtering built specifically for plaintiff employment lawyers.
+              WorkChat is intake filtering built specifically for plaintiff employment lawyers.
             </p>
             <p className="text-lg text-gray-700">
-              You get a branded link — <span className="font-mono bg-gradient-to-r from-primary-100 to-primary-50 text-primary-700 px-3 py-1.5 rounded-lg border border-primary-200 font-semibold">yourfirm.workchat.law</span> — that you text, email, or post anywhere potential clients find you. They answer a short series of questions about their situation. WorkScreen flags the obvious disqualifiers and only forwards you the claims worth your time.
+              You get a branded link — <span className="font-mono bg-gradient-to-r from-primary-100 to-primary-50 text-primary-700 px-3 py-1.5 rounded-lg border border-primary-200 font-semibold">yourfirm.workchat.law</span> — that you text, email, or post anywhere potential clients find you. They answer a short series of questions about their situation. WorkChat flags the obvious disqualifiers and only forwards you the claims worth your time.
             </p>
             <div className="bg-green-50 border-l-4 border-green-400 p-6 rounded-r-lg mt-8">
               <p className="text-lg text-gray-800 font-medium">

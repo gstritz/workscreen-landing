@@ -61,7 +61,7 @@ export default function Hero() {
             </span>
           </h1>
           <p className="text-xl md:text-2xl lg:text-3xl text-gray-600 mb-12 max-w-4xl mx-auto leading-relaxed font-light">
-            WorkScreen filters potential clients before they reach your inbox. You get a branded intake link that qualifies inquiries — so you only spend time on cases you can actually take.
+            WorkChat filters potential clients before they reach your inbox. You get a branded intake link that qualifies inquiries — so you only spend time on cases you can actually take.
           </p>
           <div className="animate-slide-up max-w-2xl mx-auto">
             <form onSubmit={handleSubmit} className="space-y-4">

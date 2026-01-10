@@ -21,7 +21,7 @@ export default function Screening() {
         
         <div className="bg-white rounded-3xl p-8 md:p-12 shadow-premium border border-gray-100">
           <p className="text-xl text-gray-800 mb-8 font-medium text-center">
-            WorkScreen checks for the threshold issues that kill most employment inquiries:
+            WorkChat checks for the threshold issues that kill most employment inquiries:
           </p>
           <div className="grid md:grid-cols-2 gap-4 mb-8">
             {criteria.map((criterion, index) => (

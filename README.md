@@ -1,6 +1,6 @@
-# WorkScreen Landing Page
+# WorkChat Landing Page
 
-A single-page landing page for WorkScreen - a lead screening tool for plaintiff-side employment lawyers. Built with Next.js, TypeScript, and Tailwind CSS, deployed on Vercel.
+A single-page landing page for WorkChat - a lead screening tool for plaintiff-side employment lawyers. Built with Next.js, TypeScript, and Tailwind CSS, deployed on Vercel.
 
 ## Features
 

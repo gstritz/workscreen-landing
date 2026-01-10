@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Questionnaire {
+  id            String   @id @default(uuid())
+  subdomain     String   @unique // e.g., "sanfordlaw" for sanfordlaw.workchat.law
+  title         String
+  description   String?
+  config        Json     // Full questionnaire structure (fields, logic, screens) - flexible JSON
+  lawFirmEmail  String   // Where to send responses
+  lawFirmName   String
+  branding      Json?    // { logoUrl?, primaryColor?, secondaryColor?, favicon? }
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  responses     Response[]
+
+  @@index([subdomain])
+  @@index([isActive])
+}
+
+model Response {
+  id              String       @id @default(uuid())
+  questionnaireId String
+  sessionId       String       @unique // Unique session identifier for resuming
+  answers         Json         // All field answers keyed by field ref/id - flexible structure
+  metadata        Json?        // IP address, user agent, timestamps, etc.
+  status          ResponseStatus @default(IN_PROGRESS)
+  submittedAt     DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  questionnaire   Questionnaire @relation(fields: [questionnaireId], references: [id], onDelete: Cascade)
+  files           File[]
+
+  @@index([questionnaireId])
+  @@index([sessionId])
+  @@index([status])
+}
+
+model File {
+  id         String   @id @default(uuid())
+  responseId String
+  fieldRef   String   // Which field this file belongs to
+  fileName   String
+  fileUrl    String   // URL to stored file
+  fileSize   Int      // Size in bytes
+  mimeType   String
+  uploadedAt DateTime @default(now())
+
+  response   Response @relation(fields: [responseId], references: [id], onDelete: Cascade)
+
+  @@index([responseId])
+  @@index([fieldRef])
+}
+
+enum ResponseStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}

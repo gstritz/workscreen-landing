@@ -6,8 +6,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'WorkScreen - Stop Screening Employment Cases Manually',
-  description: 'WorkScreen filters potential clients before they reach your inbox. Get a branded intake link that qualifies inquiries — so you only spend time on cases you can actually take.',
+  title: 'WorkChat - Stop Screening Employment Cases Manually',
+  description: 'WorkChat filters potential clients before they reach your inbox. Get a branded intake link that qualifies inquiries — so you only spend time on cases you can actually take.',
 }
 
 export default function RootLayout({

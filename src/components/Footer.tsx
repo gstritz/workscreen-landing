@@ -13,7 +13,7 @@ export default function Footer() {
         </p>
         <div className="mt-6 pt-6 border-t border-gray-800">
           <p className="text-sm text-gray-500">
-            © {new Date().getFullYear()} WorkScreen. All rights reserved.
+            © {new Date().getFullYear()} WorkChat. All rights reserved.
           </p>
         </div>
       </div>

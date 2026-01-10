@@ -27,7 +27,7 @@ export default function Pricing() {
               </p>
             </div>
             <p className="text-xl text-gray-300">
-              We're building WorkScreen to learn what plaintiff employment lawyers actually need from intake tools. Early access users get the product free. In exchange, we get feedback that shapes what we build.
+              We're building WorkChat to learn what plaintiff employment lawyers actually need from intake tools. Early access users get the product free. In exchange, we get feedback that shapes what we build.
             </p>
             <div className="bg-white/5 border-l-4 border-primary-400 p-6 rounded-r-lg mt-8">
               <p className="text-lg text-gray-200">

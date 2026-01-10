@@ -3,7 +3,7 @@ export default function HowItWorks() {
     {
       number: '1',
       title: 'Get Your Link',
-      description: 'Sign up and we generate a branded WorkScreen URL for your firm. Takes two minutes. No technical setup.',
+      description: 'Sign up and we generate a branded WorkChat URL for your firm. Takes two minutes. No technical setup.',
       icon: '🔗',
     },
     {
@@ -15,7 +15,7 @@ export default function HowItWorks() {
     {
       number: '3',
       title: 'Review Qualified Inquiries',
-      description: 'WorkScreen asks the questions you\'d ask anyway - employment relationship, timeline, employer size, documentation, what happened. Qualified inquiries hit your inbox. Unqualified ones get a polite explanation and never waste your time.',
+      description: 'WorkChat asks the questions you\'d ask anyway - employment relationship, timeline, employer size, documentation, what happened. Qualified inquiries hit your inbox. Unqualified ones get a polite explanation and never waste your time.',
       icon: '✅',
     },
   ]

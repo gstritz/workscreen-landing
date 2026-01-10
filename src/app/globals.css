@@ -25,10 +25,14 @@ html {
 
 .gradient-mesh {
   background: 
-    radial-gradient(at 0% 0%, rgba(79, 86, 245, 0.1) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(139, 163, 255, 0.1) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(111, 122, 255, 0.1) 0px, transparent 50%),
-    radial-gradient(at 0% 100%, rgba(79, 86, 245, 0.1) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(79, 86, 245, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(139, 163, 255, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(111, 122, 255, 0.08) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(79, 86, 245, 0.08) 0px, transparent 50%);
+}
+
+.gradient-subtle {
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.5) 0%, rgba(255, 255, 255, 1) 100%);
 }
 
 /* Smooth transitions */
@@ -36,4 +40,154 @@ html {
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 200ms;
+}
+
+/* Premium form input styles */
+@layer components {
+  .input-premium {
+    @apply w-full px-5 py-4 text-base border-2 border-gray-200 rounded-xl;
+    @apply bg-white text-gray-900 placeholder-gray-400;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500;
+    @apply transition-all duration-200 ease-in-out;
+    @apply hover:border-gray-300;
+  }
+
+  .input-premium:disabled {
+    @apply bg-gray-50 text-gray-500 cursor-not-allowed;
+  }
+
+  .input-error {
+    @apply border-red-400 focus:ring-red-500 focus:border-red-500;
+  }
+
+  .textarea-premium {
+    @apply w-full px-5 py-4 text-base border-2 border-gray-200 rounded-xl;
+    @apply bg-white text-gray-900 placeholder-gray-400 resize-none;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500;
+    @apply transition-all duration-200 ease-in-out;
+    @apply hover:border-gray-300;
+  }
+
+  .select-premium {
+    @apply w-full px-5 py-4 text-base border-2 border-gray-200 rounded-xl;
+    @apply bg-white text-gray-900;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500;
+    @apply transition-all duration-200 ease-in-out;
+    @apply hover:border-gray-300;
+    @apply appearance-none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+    background-size: 1.5em 1.5em;
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+  }
+
+  .button-premium {
+    @apply px-8 py-4 rounded-xl font-semibold text-base;
+    @apply transition-all duration-200 ease-in-out;
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .button-primary {
+    @apply button-premium bg-primary-600 text-white;
+    @apply hover:bg-primary-700 focus:ring-primary-500;
+    @apply active:scale-[0.98] transform;
+  }
+
+  .button-secondary {
+    @apply button-premium bg-gray-100 text-gray-700;
+    @apply hover:bg-gray-200 focus:ring-gray-500;
+    @apply active:scale-[0.98] transform;
+  }
+
+  .card-premium {
+    @apply bg-white rounded-2xl shadow-premium;
+    @apply border border-gray-100;
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  .card-elevated {
+    @apply card-premium shadow-premium-lg;
+  }
+}
+
+/* Animation utilities */
+@layer utilities {
+  .animate-fade-in-up {
+    animation: fadeInUp 0.5s ease-out forwards;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.5s ease-out forwards;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.3s ease-out forwards;
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+/* Keyframes */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes checkmark {
+  0% {
+    stroke-dashoffset: 100;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.checkmark-animated {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: checkmark 0.6s ease-out forwards;
 }

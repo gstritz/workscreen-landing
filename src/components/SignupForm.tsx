@@ -94,7 +94,7 @@ export default function SignupForm() {
           </h2>
           <div className="w-24 h-1 bg-gradient-to-r from-primary-600 to-primary-400 mx-auto rounded-full mb-6"></div>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            We're onboarding plaintiff employment firms now. Enter your information and we'll set up your branded WorkScreen link.
+            We're onboarding plaintiff employment firms now. Enter your information and we'll set up your branded WorkChat link.
           </p>
         </div>
 
@@ -102,7 +102,7 @@ export default function SignupForm() {
           <div className="mb-8 p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-xl shadow-lg">
             <p className="text-green-800 font-semibold text-lg flex items-center">
               <span className="text-2xl mr-3">✓</span>
-              Thank you! We've received your request. We'll be in touch soon to set up your WorkScreen link.
+              Thank you! We've received your request. We'll be in touch soon to set up your WorkChat link.
             </p>
           </div>
         )}

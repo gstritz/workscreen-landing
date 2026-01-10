@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
 
     // Format email content
     const emailContent = `
-New WorkScreen Early Access Request
+New WorkChat Early Access Request
 
 Firm Name: ${body.firmName}
 Email: ${body.email}
@@ -115,7 +115,7 @@ IP Address: ${clientIP}
       await resend.emails.send({
         from: emailFrom,
         to: emailTo,
-        subject: `New WorkScreen Early Access Request from ${body.firmName}`,
+        subject: `New WorkChat Early Access Request from ${body.firmName}`,
         text: emailContent,
       })
     } catch (error) {

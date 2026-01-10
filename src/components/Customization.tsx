@@ -24,7 +24,7 @@ export default function Customization() {
         
         <div className="bg-gradient-to-br from-primary-50/30 to-blue-50/30 rounded-3xl p-8 md:p-12 shadow-premium border border-primary-100">
           <p className="text-xl text-gray-800 mb-8 font-medium text-center">
-            Not every employment lawyer handles every case type. Configure WorkScreen for what you actually take:
+            Not every employment lawyer handles every case type. Configure WorkChat for what you actually take:
           </p>
           <div className="grid md:grid-cols-2 gap-4 mb-8">
             {caseTypes.map((caseType, index) => (
@@ -39,7 +39,7 @@ export default function Customization() {
           </div>
           <div className="bg-white rounded-xl p-6 border border-primary-200">
             <p className="text-lg text-gray-800 font-semibold text-center">
-              Set your state coverage. Set your employer-size minimums. WorkScreen screens accordingly.
+              Set your state coverage. Set your employer-size minimums. WorkChat screens accordingly.
             </p>
           </div>
         </div>
