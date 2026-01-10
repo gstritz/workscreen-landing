@@ -36,10 +36,14 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({ questionnaire })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching questionnaire by subdomain:', error)
     return NextResponse.json(
-      { error: 'Failed to fetch questionnaire' },
+      { 
+        error: 'Failed to fetch questionnaire',
+        message: error.message || 'Unknown error',
+        code: error.code,
+      },
       { status: 500 }
     )
   }
