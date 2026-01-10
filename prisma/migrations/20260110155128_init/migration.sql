@@ -9,8 +9,8 @@ CREATE TABLE "Questionnaire" (
     "lawFirmName" TEXT NOT NULL,
     "branding" JSONB,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL
 );
 
 -- CreateTable
@@ -21,9 +21,9 @@ CREATE TABLE "Response" (
     "answers" JSONB NOT NULL,
     "metadata" JSONB,
     "status" TEXT NOT NULL DEFAULT 'IN_PROGRESS',
-    "submittedAt" DATETIME,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
+    "submittedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "Response_questionnaireId_fkey" FOREIGN KEY ("questionnaireId") REFERENCES "Questionnaire" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -36,7 +36,7 @@ CREATE TABLE "File" (
     "fileUrl" TEXT NOT NULL,
     "fileSize" INTEGER NOT NULL,
     "mimeType" TEXT NOT NULL,
-    "uploadedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "uploadedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "File_responseId_fkey" FOREIGN KEY ("responseId") REFERENCES "Response" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
