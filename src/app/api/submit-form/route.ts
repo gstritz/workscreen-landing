@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Lazy initialization - only create Resend client when needed
+function getResend() {
+  const apiKey = process.env.RESEND_API_KEY
+  if (!apiKey) {
+    throw new Error('RESEND_API_KEY is not configured')
+  }
+  return new Resend(apiKey)
+}
 
 interface FormData {
   firmName: string
@@ -92,14 +99,6 @@ IP Address: ${clientIP}
     `.trim()
 
     // Send email using Resend
-    if (!process.env.RESEND_API_KEY) {
-      console.error('RESEND_API_KEY is not set')
-      return NextResponse.json(
-        { error: 'Email service not configured' },
-        { status: 500 }
-      )
-    }
-
     const emailFrom = process.env.EMAIL_FROM || 'noreply@workchat.law'
     const emailTo = process.env.EMAIL_TO
 
@@ -111,12 +110,21 @@ IP Address: ${clientIP}
       )
     }
 
-    await resend.emails.send({
-      from: emailFrom,
-      to: emailTo,
-      subject: `New WorkScreen Early Access Request from ${body.firmName}`,
-      text: emailContent,
-    })
+    try {
+      const resend = getResend()
+      await resend.emails.send({
+        from: emailFrom,
+        to: emailTo,
+        subject: `New WorkScreen Early Access Request from ${body.firmName}`,
+        text: emailContent,
+      })
+    } catch (error) {
+      console.error('Error initializing Resend or sending email:', error)
+      return NextResponse.json(
+        { error: 'Email service not configured. Please set RESEND_API_KEY environment variable.' },
+        { status: 500 }
+      )
+    }
 
     return NextResponse.json(
       { message: 'Form submitted successfully' },
