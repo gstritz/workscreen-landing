@@ -1,0 +1,19 @@
+# Database files
+prisma/dev.db
+*.db
+
+# Dependencies
+node_modules
+
+# Build outputs
+.next
+out
+build
+
+# Environment files
+.env
+.env*.local
+
+# Misc
+.DS_Store
+*.log
