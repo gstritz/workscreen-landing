@@ -313,8 +313,8 @@ export default function QuestionnaireRenderer({ questionnaire }: { questionnaire
                   
                   // Auto-advance for single-selection choice fields
                   if (message.field && 
-                      (message.field.type === 'multiple_choice' && !message.field.properties?.allow_multiple_selection) ||
-                      message.field.type === 'yes_no') {
+                      ((message.field.type === 'multiple_choice' && !message.field.properties?.allow_multiple_selection) ||
+                       message.field.type === 'yes_no')) {
                     // Use handleNext with the message field to properly advance
                     setTimeout(() => {
                       handleNext(value, message.field!)
