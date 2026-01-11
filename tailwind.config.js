@@ -46,6 +46,9 @@ module.exports = {
         'float': 'float 6s ease-in-out infinite',
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'checkmark': 'checkmark 0.6s ease-out forwards',
+        'chat-bubble-in': 'chatBubbleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+        'answer-bubble-in': 'answerBubbleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+        'typing': 'typing 1.4s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {

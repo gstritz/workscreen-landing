@@ -2,13 +2,12 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { QuestionnaireConfig, Field, WelcomeScreen, ThankYouScreen, ResponseAnswers } from '@/types/questionnaire'
-import WelcomeScreenComponent from './WelcomeScreen'
-import ThankYouScreenComponent from './ThankYouScreen'
-import QuestionRenderer from './QuestionRenderer'
-import ConfirmationScreen from './ConfirmationScreen'
 import { getNextQuestion } from '@/lib/questionnaire/logic'
-import { replaceFieldReferences } from '@/lib/questionnaire/parser'
 import BrandedHeader from './BrandedHeader'
+import TypingIndicator from './TypingIndicator'
+import ChatMessage from './ChatMessage'
+import ChatContainer from './ChatContainer'
+import ChatInput from './ChatInput'
 
 interface Questionnaire {
   id: string
@@ -28,22 +27,26 @@ interface Questionnaire {
   isActive: boolean
 }
 
-type ScreenType = 'welcome' | 'question' | 'confirmation' | 'thankyou'
+type MessageType = 'question' | 'answer' | 'welcome' | 'thankyou'
 
-interface CurrentScreen {
-  type: ScreenType
-  data: WelcomeScreen | Field | ThankYouScreen | null
-  index: number
+interface Message {
+  id: string
+  type: MessageType
+  field?: Field
+  answer?: any
+  screen?: WelcomeScreen | ThankYouScreen
+  timestamp: number
 }
 
 export default function QuestionnaireRenderer({ questionnaire }: { questionnaire: Questionnaire }) {
-  const [currentScreen, setCurrentScreen] = useState<CurrentScreen | null>(null)
+  const [messages, setMessages] = useState<Message[]>([])
+  const [currentField, setCurrentField] = useState<Field | null>(null)
   const [answers, setAnswers] = useState<ResponseAnswers>({})
   const [responseId, setResponseId] = useState<string | null>(null)
-  const [sessionId, setSessionId] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [progress, setProgress] = useState(0)
-  const [navigationHistory, setNavigationHistory] = useState<(Field | WelcomeScreen | ThankYouScreen)[]>([])
+  const [isTyping, setIsTyping] = useState(false)
+  const [isInitialized, setIsInitialized] = useState(false)
+  const [showThankYou, setShowThankYou] = useState(false)
 
   const config = questionnaire?.config || {}
   const allFields = useMemo(() => config?.fields || [], [config?.fields])
@@ -52,7 +55,6 @@ export default function QuestionnaireRenderer({ questionnaire }: { questionnaire
   const logic = useMemo(() => config?.logic || [], [config?.logic])
   
   // Find statement fields that come before the first input question (for intro display)
-  // Memoize firstInputIndex to ensure stable reference
   const firstInputIndex = useMemo(() => {
     return allFields.findIndex(f => f.type !== 'statement')
   }, [allFields])
@@ -87,43 +89,40 @@ export default function QuestionnaireRenderer({ questionnaire }: { questionnaire
 
         const data = await response.json()
         setResponseId(data.responseId)
-        setSessionId(data.sessionId)
 
-        // Start with intro screen if there's intro content, otherwise first question
+        const initialMessages: Message[] = []
+
+        // Add welcome message
         if (welcomeScreens.length > 0 || introStatementFields.length > 0) {
-          // Create a combined intro screen
-          const introScreen: WelcomeScreen = {
-            id: 'intro-combined',
-            ref: 'intro-combined',
-            title: '',
-            properties: {
-              show_button: true,
-              button_text: 'Continue',
-              description: ''
-            }
-          }
-          setCurrentScreen({
+          initialMessages.push({
+            id: 'welcome-0',
             type: 'welcome',
-            data: introScreen,
-            index: 0,
+            timestamp: Date.now()
           })
-          setNavigationHistory([introScreen])
-        } else if (fields.length > 0) {
-          const firstField = fields[0]
-          setCurrentScreen({
-            type: 'question',
-            data: firstField,
-            index: 0,
-          })
-          setNavigationHistory([firstField])
         }
+
+        // Add first question
+        if (fields.length > 0) {
+          initialMessages.push({
+            id: `question-${fields[0].id}-${Date.now()}`,
+            type: 'question',
+            field: fields[0],
+            timestamp: Date.now()
+          })
+          setCurrentField(fields[0])
+        }
+
+        setMessages(initialMessages)
+        setIsInitialized(true)
       } catch (error) {
         console.error('Error initializing response:', error)
       }
     }
 
-    initializeResponse()
-  }, [questionnaire.id, welcomeScreens, fields, introStatementFields])
+    if (!isInitialized) {
+      initializeResponse()
+    }
+  }, [questionnaire.id, welcomeScreens, introStatementFields, fields, isInitialized])
 
   // Auto-save answers periodically
   useEffect(() => {
@@ -144,20 +143,6 @@ export default function QuestionnaireRenderer({ questionnaire }: { questionnaire
     return () => clearTimeout(autoSaveTimer)
   }, [answers, responseId])
 
-  // Calculate progress
-  useEffect(() => {
-    if (!currentScreen || currentScreen.type !== 'question') {
-      setProgress(0)
-      return
-    }
-
-    const currentIndex = fields.findIndex((f) => f.id === (currentScreen.data as Field)?.id)
-    if (currentIndex >= 0) {
-      const totalQuestions = fields.length
-      setProgress(((currentIndex + 1) / totalQuestions) * 100)
-    }
-  }, [currentScreen, fields])
-
   const handleAnswer = useCallback(
     (fieldRef: string, value: any) => {
       setAnswers((prev) => ({
@@ -167,6 +152,81 @@ export default function QuestionnaireRenderer({ questionnaire }: { questionnaire
     },
     []
   )
+
+  const handleNext = useCallback((answerValue?: any, fieldOverride?: Field) => {
+    const fieldToUse = fieldOverride || currentField
+    if (!fieldToUse) return
+
+    // Add answer to messages if we have one
+    const fieldAnswer = answerValue !== undefined 
+      ? answerValue 
+      : (answers[fieldToUse.ref] || answers[fieldToUse.id])
+    
+    if (fieldAnswer !== undefined && fieldAnswer !== null && fieldAnswer !== '' &&
+        !(Array.isArray(fieldAnswer) && fieldAnswer.length === 0)) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `answer-${fieldToUse.id}-${Date.now()}`,
+          type: 'answer',
+          field: fieldToUse,
+          answer: fieldAnswer,
+          timestamp: Date.now()
+        }
+      ])
+    }
+
+    // Show typing indicator
+    setIsTyping(true)
+
+    // Get next question after a short delay
+    setTimeout(() => {
+      setIsTyping(false)
+
+      // Use updated answers (including the one we just added) for logic
+      const updatedAnswers = answerValue !== undefined
+        ? { ...answers, [fieldToUse.ref]: answerValue }
+        : answers
+
+      // Use logic engine to determine next question
+      const nextField = getNextQuestion(
+        fieldToUse,
+        updatedAnswers,
+        fields,
+        logic
+      )
+
+      if (nextField) {
+        // Add question to messages first - use functional update to ensure it's added
+        setMessages((prev) => {
+          // Check if question already exists to avoid duplicates
+          const questionExists = prev.some(m => 
+            m.type === 'question' && m.field?.id === nextField.id
+          )
+          if (questionExists) {
+            return prev
+          }
+          return [
+            ...prev,
+            {
+              id: `question-${nextField.id}-${Date.now()}`,
+              type: 'question',
+              field: nextField,
+              timestamp: Date.now()
+            }
+          ]
+        })
+        // Set current field after a delay to ensure question bubble renders first
+        setTimeout(() => {
+          setCurrentField(nextField)
+        }, 400)
+      } else {
+        // No more questions, submit and show thank you screen
+        handleSubmit()
+        return
+      }
+    }, 600)
+  }, [currentField, answers, fields, logic])
 
   const handleSubmit = useCallback(async () => {
     if (!responseId || isSubmitting) return
@@ -184,16 +244,11 @@ export default function QuestionnaireRenderer({ questionnaire }: { questionnaire
         throw new Error('Failed to submit')
       }
 
-      // Show thank you screen
+      // Show thank you screen as full screen
       if (thankYouScreens.length > 0) {
-        const thankYouScreen = thankYouScreens[0]
-        setCurrentScreen({
-          type: 'thankyou',
-          data: thankYouScreen,
-          index: 0,
-        })
-        setNavigationHistory((prev) => [...prev, thankYouScreen])
+        setShowThankYou(true)
       }
+      setCurrentField(null)
     } catch (error) {
       console.error('Error submitting response:', error)
       alert('Failed to submit. Please try again.')
@@ -202,109 +257,7 @@ export default function QuestionnaireRenderer({ questionnaire }: { questionnaire
     }
   }, [responseId, answers, thankYouScreens, isSubmitting])
 
-  const handleNext = useCallback(() => {
-    if (!currentScreen) return
-
-    if (currentScreen.type === 'welcome') {
-      // Move to first question
-      if (fields && fields.length > 0) {
-        const firstField = fields[0]
-        setCurrentScreen({
-          type: 'question',
-          data: firstField,
-          index: 0,
-        })
-        setNavigationHistory((prev) => [...prev, firstField])
-      } else {
-        // If no fields, try to show thank you screen or submit
-        if (thankYouScreens && thankYouScreens.length > 0) {
-          const thankYouScreen = thankYouScreens[0]
-          setCurrentScreen({
-            type: 'thankyou',
-            data: thankYouScreen,
-            index: 0,
-          })
-          setNavigationHistory((prev) => [...prev, thankYouScreen])
-        }
-      }
-      return
-    }
-
-    if (currentScreen.type === 'question') {
-      const currentField = currentScreen.data as Field
-      const currentIndex = fields.findIndex((f) => f.id === currentField.id)
-
-      // Use logic engine to determine next question
-      const nextField = getNextQuestion(
-        currentField,
-        answers,
-        fields,
-        logic
-      )
-
-      if (nextField) {
-        const nextIndex = fields.findIndex((f) => f.id === nextField.id)
-        setCurrentScreen({
-          type: 'question',
-          data: nextField,
-          index: nextIndex,
-        })
-        setNavigationHistory((prev) => [...prev, nextField])
-      } else {
-        // No more questions, show thank you screen
-        if (thankYouScreens.length > 0) {
-          const thankYouScreen = thankYouScreens[0]
-          setCurrentScreen({
-            type: 'thankyou',
-            data: thankYouScreen,
-            index: 0,
-          })
-          setNavigationHistory((prev) => [...prev, thankYouScreen])
-        } else {
-          // Submit if no thank you screen
-          handleSubmit()
-        }
-      }
-    }
-  }, [currentScreen, answers, fields, logic, thankYouScreens, handleSubmit])
-
-  const handleBack = useCallback(() => {
-    if (!currentScreen || navigationHistory.length <= 1) return
-
-    // Remove current screen from history and go to previous
-    const newHistory = [...navigationHistory]
-    newHistory.pop() // Remove current
-    const previousItem = newHistory[newHistory.length - 1]
-
-    if (!previousItem) return
-
-    // Determine type of previous item
-    if (welcomeScreens.some((s) => s.id === previousItem.id || s.ref === (previousItem as any).ref)) {
-      setCurrentScreen({
-        type: 'welcome',
-        data: previousItem as WelcomeScreen,
-        index: 0,
-      })
-    } else if (thankYouScreens.some((s) => s.id === previousItem.id || s.ref === (previousItem as any).ref)) {
-      setCurrentScreen({
-        type: 'thankyou',
-        data: previousItem as ThankYouScreen,
-        index: 0,
-      })
-    } else {
-      const previousField = previousItem as Field
-      const previousIndex = fields.findIndex((f) => f.id === previousField.id)
-      setCurrentScreen({
-        type: 'question',
-        data: previousField,
-        index: previousIndex >= 0 ? previousIndex : 0,
-      })
-    }
-
-    setNavigationHistory(newHistory)
-  }, [currentScreen, navigationHistory, fields, welcomeScreens, thankYouScreens])
-
-  if (!currentScreen) {
+  if (!isInitialized) {
     return (
       <div className="min-h-screen flex items-center justify-center gradient-mesh">
         <div className="text-center">
@@ -315,98 +268,77 @@ export default function QuestionnaireRenderer({ questionnaire }: { questionnaire
     )
   }
 
+  // Show full-screen thank you screen
+  if (showThankYou && thankYouScreens.length > 0) {
+    return (
+      <div className="h-screen gradient-mesh flex items-center justify-center">
+        <div className="w-full max-w-lg px-4">
+          <ChatMessage
+            type="thankyou"
+            screen={thankYouScreens[0]}
+            answers={answers}
+          />
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="min-h-screen gradient-mesh bg-gradient-to-br from-gray-50 via-white to-gray-50">
+    <div className="h-screen gradient-mesh flex flex-col overflow-hidden">
       <BrandedHeader questionnaire={questionnaire} />
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        {/* Enhanced Progress bar */}
-        {currentScreen.type === 'question' && config.settings?.show_progress_bar !== false && (
-          <div className="mb-10 sm:mb-12 animate-fade-in-up">
-            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner-premium">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-primary-500 via-primary-600 to-primary-700 transition-all duration-500 ease-out relative overflow-hidden"
-                style={{ width: `${progress}%` }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse-slow"></div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Render current screen with smooth transitions */}
-        <div className="animate-fade-in-up">
-          {currentScreen.type === 'welcome' && (
-            <WelcomeScreenComponent
-              screen={currentScreen.data as WelcomeScreen}
-              answers={answers}
-              onNext={handleNext}
-              onBack={undefined}
-              welcomeScreens={welcomeScreens}
-              introStatementFields={introStatementFields}
-            />
-          )}
-
-          {currentScreen.type === 'question' && (
-            <QuestionRenderer
-              field={currentScreen.data as Field}
-              answers={answers}
-              onAnswer={handleAnswer}
-              onNext={handleNext}
-              onBack={(() => {
-                // Never show back button on first question
-                if (currentScreen.index === 0) {
-                  return undefined
-                }
-                // Show back button if there's navigation history
-                return navigationHistory.length > 1 ? handleBack : undefined
-              })()}
-              isLast={currentScreen.index === fields.length - 1}
-              onSubmit={() => {
-                // Show confirmation screen instead of submitting directly
-                setCurrentScreen({
-                  type: 'confirmation',
-                  data: null,
-                  index: 0,
-                })
-              }}
-              isSubmitting={isSubmitting}
-            />
-          )}
-
-          {currentScreen.type === 'confirmation' && (
-            <ConfirmationScreen
-              answers={answers}
-              fields={fields}
-              config={config}
-              onConfirm={handleSubmit}
-              onBack={() => {
-                // Go back to last question
-                if (navigationHistory.length > 0) {
-                  const lastItem = navigationHistory[navigationHistory.length - 1]
-                  if (lastItem && 'type' in lastItem) {
-                    const lastField = lastItem as Field
-                    const lastIndex = fields.findIndex((f) => f.id === lastField.id)
-                    setCurrentScreen({
-                      type: 'question',
-                      data: lastField,
-                      index: lastIndex >= 0 ? lastIndex : fields.length - 1,
-                    })
+      <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full min-h-0 overflow-hidden">
+        <ChatContainer>
+          {messages.map((message) => {
+            // Don't render thankyou messages inline - they're shown full screen
+            if (message.type === 'thankyou') {
+              return null
+            }
+            
+            const isCurrentQuestion = message.type === 'question' && 
+                                     message.field?.id === currentField?.id
+            return (
+              <ChatMessage
+                key={message.id}
+                type={message.type}
+                field={message.field}
+                answer={message.answer}
+                screen={message.screen}
+                answers={answers}
+                welcomeScreens={welcomeScreens}
+                introStatementFields={introStatementFields}
+                onChoiceSelect={(fieldRef, value) => {
+                  // Update answer immediately
+                  handleAnswer(fieldRef, value)
+                  
+                  // Auto-advance for single-selection choice fields
+                  if (message.field && 
+                      (message.field.type === 'multiple_choice' && !message.field.properties?.allow_multiple_selection) ||
+                      message.field.type === 'yes_no') {
+                    // Use handleNext with the message field to properly advance
+                    setTimeout(() => {
+                      handleNext(value, message.field!)
+                    }, 800)
+                  } else if (message.field?.type === 'multiple_choice' && message.field.properties?.allow_multiple_selection) {
+                    // For multi-select, just update the answer but don't advance
+                    // User can continue selecting or manually proceed
                   }
-                }
-              }}
-              isSubmitting={isSubmitting}
-            />
-          )}
+                }}
+                isCurrentQuestion={isCurrentQuestion}
+              />
+            )
+          })}
 
-          {currentScreen.type === 'thankyou' && (
-            <ThankYouScreenComponent
-              screen={currentScreen.data as ThankYouScreen}
-              answers={answers}
-              questionnaire={questionnaire}
-            />
-          )}
-        </div>
+          {isTyping && <TypingIndicator />}
+        </ChatContainer>
+
+        <ChatInput
+          field={currentField}
+          answers={answers}
+          onAnswer={handleAnswer}
+          onNext={handleNext}
+          isSubmitting={isSubmitting}
+        />
       </div>
     </div>
   )
