@@ -8,7 +8,7 @@
    - Committed and pushed to GitHub
 
 2. **Environment Variables**: All added to Production, Preview, and Development
-   - ✅ `RESEND_API_KEY` = `re_PKSniPwj_2sPcVjVTf7MEHDxn9B5v7y4K`
+   - ✅ `RESEND_API_KEY` = `[REDACTED - set in Vercel dashboard]`
    - ✅ `EMAIL_FROM` = `noreply@workchat.law`
    - ✅ `EMAIL_TO` = `gabriel@lexamica.com`
 

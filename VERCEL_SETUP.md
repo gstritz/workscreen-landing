@@ -30,7 +30,7 @@ Add these **required** variables:
 DATABASE_URL=postgresql://user:password@host:port/database
 
 # Email Service (REQUIRED)
-RESEND_API_KEY=re_PKSniPwj_2sPcVjVTf7MEHDxn9B5v7y4K
+RESEND_API_KEY=your_resend_api_key_here
 EMAIL_FROM=noreply@workchat.law
 EMAIL_TO=your-email@example.com
 ```
@@ -61,7 +61,7 @@ ADMIN_API_KEY=your_secret_api_key_here
 
 ### 4. Email Setup (Resend)
 
-1. ✅ **API Key**: `re_PKSniPwj_2sPcVjVTf7MEHDxn9B5v7y4K` (add this to Vercel environment variables)
+1. ✅ **API Key**: Get your API key from [resend.com](https://resend.com) and add it to Vercel environment variables
 2. Verify the domain `workchat.law` in Resend:
    - Go to [resend.com/domains](https://resend.com/domains)
    - Add domain `workchat.law`
@@ -69,7 +69,7 @@ ADMIN_API_KEY=your_secret_api_key_here
    - Wait for verification (usually takes a few minutes)
 3. Add `RESEND_API_KEY` to Vercel environment variables:
    - Name: `RESEND_API_KEY`
-   - Value: `re_PKSniPwj_2sPcVjVTf7MEHDxn9B5v7y4K`
+   - Value: Your Resend API key from resend.com
    - Environments: Select all (Production, Preview, Development)
 
 ### 5. Verify Build Settings
